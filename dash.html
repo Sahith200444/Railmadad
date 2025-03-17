@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rail Madad</title>
+    <!-- Add Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Add Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        /* CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+        }
+        header a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .container {
+            display: flex;
+            padding: 20px;
+        }
+        .left, .right {
+            flex: 1;
+            padding: 20px;
+        }
+        .left {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        section {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            border-radius: 50px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: none;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .bottom-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            background-color: #f0f2f5;
+        }
+        .bottom-buttons .button {
+            width: 100px;
+            height: 100px;
+            border-radius: 15px;
+            background-color: #4CAF50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            margin: 10px;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            text-align: center;
+        }
+        .bottom-buttons .button:hover {
+            background-color: #45a049;
+            transform: translateY(-5px);
+        }
+        .bottom-buttons img {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+        }
+        dialog {
+            border: none;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px; /* Adjusted width */
+            max-width: 90%; /* Ensure it doesn't exceed screen width */
+            height: 400px; /* Adjusted height */
+            max-height: 90%; /* Ensure it doesn't exceed screen height */
+        }
+        dialog form {
+            display: flex;
+            flex-direction: column;
+        }
+        dialog form label {
+            margin: 10px 0 5px;
+        }
+        dialog form input {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: calc(100% - 22px); /* Adjust input width to fit within the dialog */
+        }
+        dialog button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        dialog button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <a href="#home">
+            <i class="bi bi-house"></i> Home
+        </a>
+        
+        <a href="#" id="login-link">
+            <i class="bi bi-person-circle"></i> Login
+        </a>
+        
+        <a href="#" id="signup-link">
+            <i class="bi bi-person-fill-add"></i> Signup
+        </a>
+    </nav>
+</header>
+<div> {{ message }}</div>
+<div class="container">
+    <div class="left">
+        <section id="file-complaint">
+            <h2>File a Complaint</h2>
+            <p>Click the button below to file a complaint.</p>
+            <a class="button btn btn-primary" href="{{url_for('complaint')}}">
+                <i class="bi bi-image"></i> File a Complaint using image
+            </a> <br>
+        
+            <a class="button btn btn-primary" href="{{url_for('complaint_using_video')}}">
+                <i class="bi bi-camera-reels"></i> File a Complaint using video
+            </a> <br>
+        
+            <a class="button btn btn-primary" href="{{url_for('complaint_using_audio')}}">
+                <i class="bi bi-mic-fill"></i> File a complaint using audio
+            </a>
+        </section>
+
+        <section id="track">
+            <h2>Track</h2>
+            <p>Click the button below to track your complaint status.</p>
+            <a class="button btn btn-primary" href="{{url_for('tracking')}}">
+                <i class="bi bi-geo-alt-fill"></i> Track Complaint
+            </a>
+        </section>
+
+        <section id="suggestions">
+            <h2>Chatbot</h2>
+            <p>Click the button below for Chatbot.</p>
+            <a class="button btn btn-primary" href="{{url_for('chatbot')}}">
+                <i class="bi bi-robot"></i> Chatbot
+            </a>
+            
+        </section>
+
+        <section id="appreciation">
+            <h2>Appreciation</h2>
+            <p>Click the button below to show appreciation.</p>
+            <button class="button btn btn-primary">
+                <i class="bi bi-chat-left-text-fill"></i> Show Appreciation
+            </button>
+        </section>
+    </div>
+
+    <div class="right">
+        <div class="bottom-buttons">
+            
+            <a href="https://www.irctc.co.in/nget/train-search" class="button">
+                <img src="/static/booking-icon-1.png" alt="Icon 1"><br>Train Booking
+            </a>
+            <a href="https://enquiry.indianrail.gov.in/mntes/" class="button">
+                <img src="/static/booking-icon-2.png" alt="Icon 1"><br>Train Enquiry
+            </a>
+            <a href="https://www.indianrail.gov.in/enquiry/StaticPages/StaticEnquiry.jsp?StaticPage=index.html" class="button">
+                <img src="/static/booking-icon-3.png" alt="Icon 1"><br>Reservation Enquiry
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Login Dialog -->
+<dialog id="login-dialog">
+    <h2>Login</h2>
+    <form action="{{ url_for('login')}}" method="post" id="login-form">
+        <label for="login-username">Username:</label>
+        <input type="text" id="login-username" name="user"><br>
+        <label for="login-password">Password:</label>
+        <input type="password" id="login-password" name="pas"><br>
+        <button type="submit">Login</button>
+    </form>
+</dialog>
+
+<!-- Signup Dialog -->
+<dialog id="signup-dialog">
+    <h2>Signup</h2>
+    <form action="{{ url_for('register')}}" method="post" id="signup-form">
+        <label for="signup-username">Username:</label>
+        <input type="text" id="signup-username" name="username"><br>
+        <label for="signup-password">Password:</label>
+        <input type="password" id="signup-password" name="password"><br>
+        <label for="signup-mobile">Mobile:</label>
+        <input type="text" id="signup-mobile" name="mobile"><br>
+        <button type="submit">Signup</button>
+    </form>
+</dialog>
+
+<script>
+    // Open login dialog
+    document.getElementById('login-link').onclick = function() {
+        document.getElementById('login-dialog').showModal();
+    };
+
+    // Open signup dialog
+    document.getElementById('signup-link').onclick = function() {
+        document.getElementById('signup-dialog').showModal();
+    };
+
+    // Close login dialog
+    document.getElementById('login-dialog').addEventListener('click', function(event) {
+        if (event.target === this) {
+            this.close();
+        }
+    });
+
+    // Close signup dialog
+    document.getElementById('signup-dialog').addEventListener('click', function(event) {
+        if (event.target === this) {
+            this.close();
+        }
+    });
+</script>
+
+</body>
+</html>

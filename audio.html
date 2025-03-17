@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <header>
+        <nav>
+            <a href="dash.html">Home</a>
+        </nav>
+    </header>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File a Complaint</title>
+    <style>
+        /* Styling remains the same */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="date"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #555;
+        }
+        .hidden {
+            display: none;
+        }
+        .mic-icon {
+            cursor: pointer;
+            color: #0056b3;
+            font-size: 1.5em;
+            margin-left: 10px;
+        }
+        .mic-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .mic-container textarea {
+            flex: 1;
+        }
+    </style>
+    <script>
+        function showFields() {
+            const complaintType = document.getElementById("complaint-type").value;
+            const trainFields = document.getElementById("train-fields");
+            const stationFields = document.getElementById("station-fields");
+
+            if (complaintType === "train") {
+                trainFields.classList.remove("hidden");
+                stationFields.classList.add("hidden");
+            } else if (complaintType === "station") {
+                trainFields.classList.add("hidden");
+                stationFields.classList.remove("hidden");
+            } else {
+                trainFields.classList.add("hidden");
+                stationFields.classList.add("hidden");
+            }
+        }
+
+        let mediaRecorder;
+        let audioChunks = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Train microphone button listeners
+            document.getElementById('mic-on-train').addEventListener('click', async () => {
+                await startRecording('description');
+                document.getElementById('mic-on-train').style.display = 'none';
+                document.getElementById('mic-off-train').style.display = 'inline';
+            });
+
+            document.getElementById('mic-off-train').addEventListener('click', () => {
+                stopRecording('description');
+                document.getElementById('mic-off-train').style.display = 'none';
+                document.getElementById('mic-on-train').style.display = 'inline';
+            });
+
+            // Station microphone button listeners
+            document.getElementById('mic-on-station').addEventListener('click', async () => {
+                await startRecording('station-description');
+                document.getElementById('mic-on-station').style.display = 'none';
+                document.getElementById('mic-off-station').style.display = 'inline';
+            });
+
+            document.getElementById('mic-off-station').addEventListener('click', () => {
+                stopRecording('station-description');
+                document.getElementById('mic-off-station').style.display = 'none';
+                document.getElementById('mic-on-station').style.display = 'inline';
+            });
+        });
+
+        async function startRecording(targetTextareaId) {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.start();
+
+            audioChunks = [];
+
+            mediaRecorder.addEventListener('dataavailable', event => {
+                audioChunks.push(event.data);
+            });
+        }
+
+        function stopRecording(targetTextareaId) {
+            mediaRecorder.stop();
+            mediaRecorder.addEventListener('stop', () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                reader.onloadend = () => {
+                    const base64String = reader.result.split(',')[1];
+                    fetch('{{ url_for("generate_description_2") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ audio: base64String })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById(targetTextareaId).value = data.transcription;
+                    })
+                    .catch(error => console.error('Error:', error));
+                };
+            });
+        }
+    </script>
+</head>
+<body>
+
+<h2>File a Complaint</h2>
+<div>{{ message }}</div>
+<form action="{{url_for('complaint_using_audio')}}" method="post" enctype="multipart/form-data">
+    <label for="complaint-type">Complaint Type:</label>
+    <select id="complaint-type" name="complaint-type" onchange="showFields()">
+        <option value="">Select</option>
+        <option value="train">Train</option>
+        <option value="station">Station</option>
+    </select>
+
+    <div id="train-fields" class="hidden">
+        <label for="train-name">Train Name:</label>
+        <input type="text" id="train-name" name="tname" placeholder="Enter the train name">
+
+        <label for="train-date">Issue Date:</label>
+        <input type="date" id="train-date" name="tdate">
+
+        <div class="mic-container">
+            <label for="description">Description Generated by AI:</label>
+            <textarea id="description" name="tdesp" rows="4" placeholder="Describe the issue"></textarea>
+            <span class="mic-icon" id="mic-on-train">&#x1F3A4; On</span>
+            <span class="mic-icon" id="mic-off-train" style="display:none;">&#x1F3A4; Off</span>
+        </div>
+    </div>
+
+    <div id="station-fields" class="hidden">
+        <label for="station-name">Station Name:</label>
+        <input type="text" id="station-name" name="sname" placeholder="Enter the station name">
+
+        <label for="station-date">Issue Date:</label>
+        <input type="date" id="station-date" name="sdate">
+
+        <div class="mic-container">
+            <label for="station-description">Description Generated by AI:</label>
+            <textarea id="station-description" name="sdesp" rows="4" placeholder="Describe the issue"></textarea>
+            <span class="mic-icon" id="mic-on-station">&#x1F3A4; On</span>
+            <span class="mic-icon" id="mic-off-station" style="display:none;">&#x1F3A4; Off</span>
+        </div>
+    </div>
+
+    <input type="submit" value="Submit Complaint">
+</form>
+
+</body>
+</html>

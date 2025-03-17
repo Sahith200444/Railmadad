@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #101010;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Home Button */
+        .home-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .home-button a {
+            text-decoration: none;
+            color: #ffffff;
+            background-color: #000000;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .home-button a:hover {
+            background-color: white;
+            color: #000000;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            width: 900px;
+            height: 600px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #f9fafb;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .chat-input-container {
+            display: flex;
+            padding: 15px;
+            background-color: #f3f3f3;
+            box-shadow: 0px -1px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-input-container input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+            outline: none;
+        }
+
+        .chat-input-container button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .chat-input-container button:hover {
+            background-color: #ccced0;
+            color: blue;
+        }
+
+        /* Message Styles */
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message .content {
+            max-width: 60%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .message.user .content {
+            background-color: #007bff;
+            color: #fff;
+            border-bottom-right-radius: 0;
+        }
+
+        .message.bot .content {
+            background-color: #f1f1f1;
+            color: #333;
+            border-bottom-left-radius: 0;
+        }
+
+        /* Scrollbar Styles */
+        .chat-box::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="home-button">
+        <a href="dash.html">Home</a>
+    </div>
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box">
+            <!-- Messages will appear here -->
+        </div>
+        <div class="chat-input-container">
+            <input type="text" id="user-input" placeholder="Type a message..." onkeypress="return sendMessage(event)">
+            <button onclick="sendButtonMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Function to simulate bot response
+        function botReply(message) {
+            const chatBox = document.getElementById('chat-box');
+            const botMessage = document.createElement('div');
+            botMessage.classList.add('message', 'bot');
+            const messageContent = document.createElement('div');
+            messageContent.classList.add('content');
+            messageContent.innerText = message;
+            botMessage.appendChild(messageContent);
+            chatBox.appendChild(botMessage);
+            chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
+        }
+
+        // Function to handle user message and bot reply
+        function sendMessage(event) {
+            if (event.key === 'Enter') {
+                const userInput = document.getElementById('user-input');
+                if (userInput.value.trim() !== "") {
+                    // Display user message
+                    const chatBox = document.getElementById('chat-box');
+                    const userMessage = document.createElement('div');
+                    userMessage.classList.add('message', 'user');
+                    const messageContent = document.createElement('div');
+                    messageContent.classList.add('content');
+                    messageContent.innerText = userInput.value;
+                    userMessage.appendChild(messageContent);
+                    chatBox.appendChild(userMessage);
+
+                    chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
+
+                    // Send user message to the server and get bot response
+                    fetch('/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ message: userInput.value })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        botReply(data.response);
+                    })
+                    .catch(error => console.error('Error:', error));
+
+                    // Clear input
+                    userInput.value = "";
+                }
+                return false;
+            }
+        }
+
+        // Function to handle message on button click
+        function sendButtonMessage() {
+            const userInput = document.getElementById('user-input');
+            if (userInput.value.trim() !== "") {
+                // Trigger sendMessage() manually for button click
+                sendMessage({ key: 'Enter' });
+            }
+        }
+    </script>
+</body>
+</html>
